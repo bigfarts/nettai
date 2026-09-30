@@ -38,6 +38,11 @@ pub const GRAB: ChipId = 0x07;
 pub const ELEMENTS: ChipId = 0x08;
 /// A navi chip (action 0x1B, subtype 7: the water navi).
 pub const SPOUT: ChipId = 0x09;
+/// Navi chips (action 0x1B) of the rescue navi (subtype 0), the
+/// swordsman (subtype 1) and the colonel (subtype 17).
+pub const RESCUE: ChipId = 0x0A;
+pub const SWORDSMAN: ChipId = 0x0B;
+pub const COLONEL: ChipId = 0x0C;
 
 /// Actor lists: two navis, side 1's first (the usual netbattle order)...
 pub const TWO_NAVIS: ActorListId = ActorListId(0);
@@ -113,6 +118,7 @@ pub fn build() -> Content {
         regions: regions(),
         panel_layouts: vec![PanelLayout { rows: [[PanelType::Normal; 6]; 3] }],
         animations: animations(),
+        names: Vec::new(),
         weapons: weapons(),
         scripts: scripts(),
     }
@@ -156,6 +162,10 @@ pub fn scripts() -> Scripts {
                 ("objects/spout-pillar/spout_pillar", "objects/spout-pillar/spout_pillar"),
                 ("objects/spout-geyser/spout_geyser", "objects/spout-geyser/spout_geyser"),
                 ("objects/spout-mark/spout_mark", "objects/spout-mark/spout_mark"),
+                ("objects/roll/roll", "objects/roll/roll"),
+                ("objects/roll-heart/roll_heart", "objects/roll-heart/roll_heart"),
+                ("objects/proto-man/proto_man", "objects/proto-man/proto_man"),
+                ("objects/colonel/colonel", "objects/colonel/colonel"),
             ];
             let weapons = weapons().into_iter().map(|w| {
                 let module = w.script;
@@ -217,6 +227,10 @@ fn kinds() -> Vec<ObjectKind> {
         ObjectKind { scratch_z_fraction: true, ..kind("spout-pillar", Pool::Effect, 0x2D, "objects/spout-pillar/spout_pillar") },
         kind("spout-geyser", Pool::Attack, 0x17, "objects/spout-geyser/spout_geyser"),
         kind("spout-mark", Pool::Effect, 0x2E, "objects/spout-mark/spout_mark"),
+        kind("roll", Pool::Actor, 0x2C, "objects/roll/roll"),
+        kind("roll-heart", Pool::Attack, 0x4E, "objects/roll-heart/roll_heart"),
+        kind("proto-man", Pool::Actor, 0x3C, "objects/proto-man/proto_man"),
+        kind("colonel", Pool::Actor, 0x01, "objects/colonel/colonel"),
     ];
     kinds.sort_by(|a, b| a.name.cmp(&b.name));
     kinds
@@ -325,6 +339,27 @@ fn chips() -> Vec<ChipData> {
             damage: 40,
             script: Some("objects/spout-man/spout_man".into()),
             ..chip(SPOUT, "Spout", 0x1B, 7)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Mega,
+            damage: 20,
+            script: Some("objects/roll/roll".into()),
+            ..chip(RESCUE, "Rescue", 0x1B, 0)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Mega,
+            damage: 30,
+            script: Some("objects/proto-man/proto_man".into()),
+            ..chip(SWORDSMAN, "Swordsman", 0x1B, 1)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Mega,
+            damage: 40,
+            script: Some("objects/colonel/colonel".into()),
+            ..chip(COLONEL, "Colonel", 0x1B, 17)
         },
     ]
 }
@@ -557,7 +592,9 @@ fn objects() -> ObjectData {
     // The buster's muzzle flash and arm.
     let plain = |id, index| AttachmentKind { id, sprite: SpriteId { category: 0x0C, index }, palette: 0, lift: 0, attach_point: None };
     ObjectData {
-        attachments: (0..5).map(gun).chain([plain(5, 0x06), plain(6, 0x03)]).collect(),
+        // Up to 0x1F: the rescue navi's ribbon (0x12), the swordsman's
+        // sword (0x11), the colonel's (0x1F).
+        attachments: (0..5).map(gun).chain([plain(5, 0x06), plain(6, 0x03)]).chain((7..0x20).map(|id| plain(id, 0x40))).collect(),
         rocks: vec![rock(0, 1, Element::Null), rock(1, 1, Element::Null), rock(2, 2, Element::Null), rock(3, 2, Element::Aqua)],
         absorbed_sprites: vec![SpriteId { category: 0x10, index: 0 }; 6],
         // The elements navi's overlay (variant 0x0F).
@@ -631,6 +668,11 @@ fn animations() -> Animations {
     sprites.insert(SpriteId { category: 0x10, index: 0x1F }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 4]);
     sprites.insert(SpriteId { category: 0x10, index: 0x20 }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 3]);
     sprites.insert(SpriteId { category: 0x10, index: 0x21 }, vec![vec![f(6, 0), f(6, LAST | LOOP)]]);
+    // The rescue navi (and her heart), the swordsman and the colonel (and
+    // his cape).
+    sprites.insert(SpriteId { category: 0x0C, index: 0x50 }, vec![vec![f(4, 0), f(4, LAST | LOOP)]; 6]);
+    sprites.insert(SpriteId { category: 8, index: 0x0B }, vec![vec![f(4, 0), f(4, LAST | LOOP)]; 6]);
+    sprites.insert(SpriteId { category: 8, index: 0x12 }, vec![vec![f(4, 0), f(4, LAST | LOOP)]; 0x14]);
     // The buster's muzzle flash, and its arm (by form).
     sprites.insert(SpriteId { category: 0x0C, index: 0x06 }, vec![vec![f(2, 0), f(2, LAST)]]);
     sprites.insert(SpriteId { category: 0x0C, index: 0x03 }, vec![vec![f(30, LAST | LOOP)]; 0x19]);

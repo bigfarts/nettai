@@ -322,6 +322,12 @@ struct RegionsFile {
 
 #[derive(Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+struct NamesFile {
+    name: Vec<NameData>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 struct RegionRecord {
     id: u8,
     panels: Vec<PanelOffset>,
@@ -817,6 +823,12 @@ neighbour is looked for along the scan lists, each slot starting at its *_scan_s
         ),
     );
     put(
+        "registries/names.toml".into(), toml_file(
+            "NameIDs besides the player navis': the navis' (actor type navi), each with its actor record\n(`byte_80182C4`) and its sprite's 34 attach points (`sub_8018810`), [x, y] in pixels with x toward\nthe facing side.",
+            &NamesFile { name: c.names.clone() },
+        ),
+    );
+    put(
         "registries/panel-layouts.toml".into(), toml_file(
             "Panel layouts by layout number (battle settings' layout): panel types, rows y = 1..3,\ncolumns x = 1..6.",
             &LayoutsFile {
@@ -986,6 +998,8 @@ pub fn load(root: &Path, report: &mut Report) -> Option<Content> {
     );
     let regions: RegionsFile = read_toml(root, "registries/regions.toml", report)?;
     let regions = dense(regions.region.into_iter().map(|r| (r.id as usize, r.panels, "registries/regions.toml".into())).collect(), "region", report);
+    let names: NamesFile = read_toml(root, "registries/names.toml", report)?;
+    let names = names.name;
     let layouts: LayoutsFile = read_toml(root, "registries/panel-layouts.toml", report)?;
     let panel_layouts = dense(
         layouts.layout.into_iter().map(|l| (l.id as usize, PanelLayout { rows: l.rows }, "registries/panel-layouts.toml".into())).collect(),
@@ -995,8 +1009,21 @@ pub fn load(root: &Path, report: &mut Report) -> Option<Content> {
     let animations = load_animations(root, report)?;
     let weapons = load_weapons(root, report);
     let scripts = load_scripts(root, report);
-    let content =
-        Content { chips, navis, forms, rules, objects, effects, sparks, regions, panel_layouts, animations, weapons, scripts };
+    let content = Content {
+        chips,
+        navis,
+        forms,
+        rules,
+        objects,
+        effects,
+        sparks,
+        regions,
+        panel_layouts,
+        animations,
+        names,
+        weapons,
+        scripts,
+    };
     check_references(&content, report);
     (report.count(crate::report::Level::Error) == errors_before).then_some(content)
 }

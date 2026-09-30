@@ -29,6 +29,7 @@ fn battles_run_the_content_scripts() {
         [
             "area-grab",
             "attachment",
+            "colonel",
             "dust-ball",
             "elmnt-bolt",
             "elmnt-ice",
@@ -39,6 +40,9 @@ fn battles_run_the_content_scripts() {
             "erase-mark",
             "grab-shot",
             "meteor",
+            "proto-man",
+            "roll",
+            "roll-heart",
             "spout-ball",
             "spout-geyser",
             "spout-man",
@@ -139,10 +143,22 @@ fn the_water_navi_attacks() {
 }
 
 #[test]
+fn the_rescue_swordsman_and_colonel_navis_come() {
+    use crate::object::Pool::Actor;
+    let seen = duel_with(&[testing::RESCUE, testing::SWORDSMAN, testing::COLONEL], 3000, 11);
+    let ticks = |k| seen.get(&k).copied().unwrap_or(0);
+    // Roll, ProtoMan and Colonel (with his cape, a form overlay).
+    assert!(ticks((Actor, 0x2C)) > 0, "Roll: {seen:?}");
+    assert!(ticks((Actor, 0x3C)) > 0, "ProtoMan: {seen:?}");
+    assert!(ticks((Actor, 0x01)) > 0, "Colonel: {seen:?}");
+    assert!(ticks((Actor, 0x57)) > 0, "Colonel's cape: {seen:?}");
+}
+
+#[test]
 fn scripted_chips_roll_back() {
     // A copy of the battle taken at any tick plays on exactly as the
     // battle does: the scripts' state is all in the battle.
-    for chips in [&[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..], &[testing::ELEMENTS], &[testing::SPOUT]] {
+    for chips in [&[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..], &[testing::ELEMENTS], &[testing::SPOUT], &[testing::RESCUE, testing::SWORDSMAN, testing::COLONEL]] {
         let setup = || scenario::setup_with(chips);
         let tape = scenario::record_on(setup(), 2400, 11);
         let mut b = Battle::new(setup(), scenario::content());

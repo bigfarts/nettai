@@ -153,6 +153,11 @@ pub struct Content {
     pub panel_layouts: Vec<PanelLayout>,
     /// Every sprite's animation timing.
     pub animations: Animations,
+    /// NameIDs besides the player navis' (which their navi and form
+    /// records hold): the navis' (actor type navi, 0x100..=0x19F; navi
+    /// chips' navis use them), with their actor records and attach
+    /// points.
+    pub names: Vec<NameData>,
     /// MegaMan's weapon routines that scripts implement (see `scripts`).
     pub weapons: Vec<WeaponData>,
     /// The pack's scripts (see `scripts`).
@@ -181,14 +186,20 @@ impl Content {
         self.forms.get(form.index()).unwrap_or_else(|| panic!("form {:#x} is not in the content", form.0))
     }
 
-    /// The navi or form that has a player NameID, and its name record.
+    /// A NameID's name record: a player navi's or form's, or another
+    /// navi's.
     pub fn name(&self, name_id: u16) -> &NameData {
+        self.find_name(name_id).unwrap_or_else(|| panic!("NameID {name_id:#x} is not in the content"))
+    }
+
+    /// The same, if the content has it.
+    pub fn find_name(&self, name_id: u16) -> Option<&NameData> {
         self.navis
             .iter()
             .filter_map(|n| n.name_record.as_ref())
             .chain(self.forms.iter().filter_map(|f| f.name_record.as_ref()))
+            .chain(self.names.iter())
             .find(|n| n.id == name_id)
-            .unwrap_or_else(|| panic!("NameID {name_id:#x} is not a player navi"))
     }
 
     /// The actor record of a player NameID.

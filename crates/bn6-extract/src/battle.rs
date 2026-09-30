@@ -29,6 +29,7 @@ pub fn content(rom: &Rom) -> Content {
         regions: regions(rom),
         panel_layouts: panel_layouts(rom),
         animations: animations(rom),
+        names: navi_names(rom),
         // Scripts come from the source overlay (content.rs), not the ROM.
         weapons: Vec::new(),
         scripts: Default::default(),
@@ -227,6 +228,16 @@ fn name_record(rom: &Rom, name: u16) -> NameData {
         .map(|i| AttachPoint { x: rom.u8(table + 2 * i) as i8, y: rom.u8(table + 2 * i + 1) as i8 })
         .collect();
     NameData { id: name, version: rec[0], actor_type, ai_index: rec[2], attach_points }
+}
+
+/// The records of every NameID whose actor is a navi (0x100..=0x19F: the
+/// navis the game's code brings, such as navi chips' navis), besides the
+/// player navis' (0x1A0 on, which their navi and form records hold).
+fn navi_names(rom: &Rom) -> Vec<NameData> {
+    (0..FIRST_NAME)
+        .filter(|&n| rom.u8(0x0801_82C4 + 3 * n as u32 + 1) == 1)
+        .map(|n| name_record(rom, n))
+        .collect()
 }
 
 fn secondary(v: u8) -> SecondaryElements {

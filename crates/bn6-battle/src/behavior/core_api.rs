@@ -328,14 +328,7 @@ impl CoreApi for Battle {
     }
 
     fn navi_record(&self, name_id: u16) -> Option<NaviRecordInfo> {
-        let name = self
-            .content
-            .navis
-            .iter()
-            .filter_map(|n| n.name_record.as_ref())
-            .chain(self.content.forms.iter().filter_map(|f| f.name_record.as_ref()))
-            .find(|n| n.id == name_id)?;
-        let r = name.record();
+        let r = self.content.find_name(name_id)?.record();
         Some(NaviRecordInfo { actor_type: actor_type_index(r.actor_type) as u8, ai_index: r.ai_index })
     }
 

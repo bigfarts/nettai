@@ -6,17 +6,20 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | kind | handler | frames alive (both traces) |
 |---|---|---|
 | T1 0x00 | 0x080b81ec | 119138 |
+| T1 0x01 | 0x080b8210 | lab only (Colonel: the pack's `objects/colonel`, chips.md §3.6.22) |
 | T1 0x05 | 0x080b8cd8 | 9798 |
 | T1 0x09 | 0x080b94bc | 545 (SpoutMan: the pack's `objects/spout-man`, chips.md §3.6.11) |
 | T1 0x0f | 0x080ba708 | 438 |
 | T1 0x10 | 0x080baa8c | 481 (ElmntMan: the pack's `objects/elmnt-man`, chips.md §3.6.7) |
 | T1 0x15 | 0x080bb608 | 513 (EraseMan: the pack's `objects/erase-man`, chips.md §3.6.7) |
 | T1 0x1b | 0x080bc650 | 424 (Cross navi image: `kinds::cross_merge`, objects-and-player.md §12.10) |
+| T1 0x2c | 0x080c07bc | lab only (Roll: the pack's `objects/roll`, chips.md §3.6.20) |
 | T1 0x2d | 0x080c0e04 | 136 (navi warp: `kinds::navi_warp`, chips.md §3.6.7) |
+| T1 0x3c | 0x080c26f0 | lab only (ProtoMan: the pack's `objects/proto-man`, chips.md §3.6.21) |
 | T1 0x50 | 0x080c3ce8 | 454 |
 | T1 0x55 | 0x080c40d8 | 592 (SpoutMan's layer: `kinds::navi_layer`, the navi parts `kinds::navi_parts`) |
 | T1 0x56 | 0x080c4348 | 72155 (body overlay: `kinds::body_overlay`, objects-and-player.md §12.10) |
-| T1 0x57 | 0x080c4530 | 1148 |
+| T1 0x57 | 0x080c4530 | 1148 (form overlay: `kinds::form_overlay`; Colonel's cape through `battle.form_overlay`) |
 | T1 0x5d | 0x080c4828 | 300 |
 | T3 0x00 | 0x080c4e58 | 3189 |
 | T3 0x03 | 0x080c52b0 | 975 |
@@ -29,6 +32,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T3 0x22 | 0x080c853c | 16 (SpoutMan's ball: the pack's `objects/spout-ball`, chips.md §3.6.11) |
 | T3 0x23 | 0x080c86d8 | lab only (its splash: the pack's `objects/spout-splash`, chips.md §3.6.11) |
 | T3 0x49 | 0x080cd2ec | 87 |
+| T3 0x4e | 0x080ce118 | lab only (Roll's heart: the pack's `objects/roll-heart`, chips.md §3.6.20) |
 | T3 0x59 | 0x080cf954 | 7372 (rock: `kinds::rock`, field-objects.md) |
 | T3 0x5b | 0x080cfcf8 | 96 |
 | T3 0x74 | 0x080d30d0 | 350 |
@@ -54,7 +58,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T4 0x04 | 0x080e0844 | 1134 |
 | T4 0x07 | 0x080e0ad4 | 5502 |
 | T4 0x08 | 0x080e0df0 | 118268 |
-| T4 0x0a | 0x080e10a4 | 56 |
+| T4 0x0a | 0x080e10a4 | 56 (palette flash: `kinds::palette_flash`; `battle.palette_flash`) |
 | T4 0x0f | 0x080e1520 | 6154 |
 | T4 0x10 | 0x080e17e8 | 6284 (navi chip dimming controller: `kinds::navi_chip`, chips.md §3.6.7) |
 | T4 0x1c | 0x080e23a4 | 334 |

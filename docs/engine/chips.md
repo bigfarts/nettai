@@ -1341,6 +1341,82 @@ Param2 ticks counted from the tick they appear.
 Unverified (no scenario reaches them; the navi AI's): the ball, splash, pillar, geyser and marks with Param1 (or
 Param3) other than SpoutMan's, which stand still while dimmed and end with their owner's action 0xB.
 
+#### 3.6.20 Roll (navi chip subtype 0, T1 0x2C)
+
+The pack's objects/roll and objects/roll-heart. The scratch lab's navis/0x0dd-roll/long{,-miss,-adjacent,-holes}
+and Roll2's and Roll3's `long` match every frame.
+
+**Roll, T1 0x2C (`sub_80C07BC`)**, spawned by `sub_80C0DD8`: the user's panel into PanelX/Y and object +0xC/+0xD (her
+home, where the heart falls), no element, the damage word, the user in RelatedObject1, the controller's flag pointer
+in ExtraVars[1]. Init: sprite (0xC, 0x50) with a ground shadow, Z 0, palette 1 for Param1 4 (Roll3) else 0, colour
+shader 0x7FFF, then her first update at once. Each update: the action's phase, `object_updateSprite`, and the colour
+shader from object +0x19 (a grey level g: g·0x421). Her phases enter on PhaseInitialized:
+- Action 0: a sparkle (T4#0 effect 0x26) 20 pixels above her, grey 31, sound 0x94; she flickers in (VISIBLE on,
+  off on odd ticks) while the grey drops 2 a tick; then 15 ticks.
+- Action 4: `sub_80C0C9A` finds her target: of the panels with an enemy navi's body (`object_getPanelsExceptCurrent-
+  Filtered`), those ahead; the panel in front of each (toward her) if it is her user's or passes flags ≠ 0 and none
+  of 0x0F800000; the nearest column first, then — the game's tie-break — the candidate's row compared with the best
+  one's row distance, then the lower row (0 if none: to action 0xC). Param3/Param4 = the panel. Then animation 2,
+  sound 0xBE, 5 ticks, hidden; she rises 15 pixels a tick to 160 (a jittered sparkle every 5 ticks, one RNG draw
+  each); onto the panel and down (sparkles every 3); a sparkle and shown, 5 ticks.
+- Action 8: animation 3, 9 ticks; her ribbon (attachment 0x12, animation 5, animating while dimmed, in ExtraVars[3]);
+  a hit on the panel ahead 20 pixels up (region 1, target 5, self 4, modifier 3, element 0, running while dimmed)
+  every 10 ticks, three to a round (one round; three with Param1 5, which no chip has), the swish sound 0xBF every 8
+  ticks, the animation restarted each round; then animation 0, the ribbon's slot cleared, 10 ticks.
+- Action 0xC: animation 2, sound 0xBE, 5 ticks, hidden, and she rises to 160 pixels.
+- Action 0x10: 10 ticks; her user warps back in (`sub_80E1332(user, 0)`: the controller skips navi 0's); her heart
+  (T3 0x4E) over her home with the heal `sub_80E199A(damage)` = 3 × (damage & 0x7FF), doubled with the damage's
+  0x8000 flag, its Params her flags byte (the object loop's r4); 90 ticks; state 8: the controller's flag cleared.
+
+**Her heart, T3 0x4E (`sub_80CE118`)**: her sprite, animation 4 (stepped once), no shadow, 160 pixels over its panel;
+it sinks 3 pixels a tick (Z's whole part, a halfword), a jittered sparkle every 10 ticks; below 0 it hides and heals
+the user (`object_addHP`: by its damage, or to full HP with 0), sound 0x8A, effect 6 at the user; gone 60 ticks later.
+
+Not ported: with the other side's defensive chip 0xBD (AntiRecv), `sub_80E192C` spawns the trap's effect (T4 0x2C,
+`sub_80E37D2`) instead of the controller — the trap chips' (group B). Unverified: Param1 5 (three rounds).
+
+#### 3.6.21 ProtoMan (navi chip subtype 1, T1 0x3C)
+
+The pack's objects/proto-man. The scratch lab's navis/0x0e0-protoman/long{,-miss,-adjacent,-holes} and the EX's and
+SP's `long` match every frame.
+
+**ProtoMan, T1 0x3C (`sub_80C26F0`)**, spawned by `sub_80C2A4C` (the controller's flag pointer in ExtraVars[1]):
+sprite (8, 0xB), palette `dword_80C276C[Param1]` (0), colour shader 0x7FFF, VISIBLE, his first update at once; each
+update steps his sprite while dimmed and sets the colour shader from his grey (+0x19).
+- Action 0: grey 31, sound 0x94, flickering in as Roll does; 30 ticks; gone (state 8) if his panel isn't solid;
+  else the search starts at the top of the column ahead (FuturePanel, ExtraVars[2] = 1, ExtraVars[3] = his flip).
+- Action 4: `sub_80C2878` searches column by column ahead, row by row (continuing from the last target's next row):
+  a panel with an enemy navi's body whose front panel is his user's (RelatedObject1, cleared at his first blink:
+  later reads find none) or solid with none of 0x0F800000. Found: FuturePanel; animation 4, RelatedObject1 cleared
+  (his sword, attached there, goes), 3 ticks; onto the front panel, 3 ticks; the slash: animation 5 (loaded 6), his
+  sword (attachment 0x11, animation 0xB, in RelatedObject1), sound 0xB0; at 10 left a hit region 0x04 16 pixels up on
+  the panel ahead (element 0, target 5, self 7, modifier 3, running while dimmed) and effect 0x27 (his starting
+  flip) there; 20 ticks, then the next search. None left (or FuturePanel off the field): action 8.
+- Action 8: RelatedObject1 cleared, animation 4, 5 ticks, hidden, state 8 (the controller's flag cleared).
+
+#### 3.6.22 Colonel (navi chip subtype 17, T1 0x01)
+
+The pack's objects/colonel; the chips Colonel, EX, SP and CrossDiv (0x134: Param3 1). The scratch lab's
+navis/0x110-colonel/long{,-miss,-adjacent,-holes}, the EX's and SP's `long` and navis/0x134-crossdiv/long{,-miss,
+-adjacent} match every frame.
+
+**Colonel, T1 0x01 (`sub_80B8210`)**, spawned by `sub_80B84EC`: sprite (8, 0x12), palette `byte_80B8294[Param1]` (3 for
+Param1 4, the SP), colour shader 0x7FFF, and his cape: a form overlay (T1 0x57, `sub_80C468C`) of his own sprite,
+stepping while dimmed, his animation + 0x0D, wearing his palette (ExtraVars[1] 0xFF), kept in his ExtraVars[0].
+Each update steps his sprite while dimmed and sets his colour shader from the grey (+0x19).
+- Action 0: VISIBLE, grey 31, sound 0x94, flickering in; 30 ticks; his panel solid → 4, else 8.
+- Action 4: 40 ticks of animation 6, then animation 5 and his sword (attachment 0x1F, animation 0x1C, in
+  RelatedObject1); sound 0xC7, 40 ticks; at 32 left (unless he stands in the enemy's back column) the strike and a
+  camera shake (presentation):
+  - Param3 0, ScreenDivide (`sub_80B8512`): the first column ahead whose three panels all have (side 0) or lack
+    (side 1) panel flag 0x20 (`sub_80B845C`; the game searches past the field forever without one); a hit region
+    0x29 16 pixels up at its row 2; effect 0x38 (flip = his side) a column further; a 20-tick palette flash.
+  - Param3 set, CrossDiv (`sub_80B8564`): the first panel ahead in his row with an enemy navi's body, or three
+    columns ahead; hit regions 0x0B and 0x01 there; effects 0x36 and 0x37 12 pixels up; a 40-tick flash.
+- Action 8: RelatedObject1 cleared, animation 4, 5 ticks, hidden, his cape destroyed, state 8.
+
+Unverified: the endless searches (reported as content errors).
+
 ---
 
 ## 4. Worked example: GunDelS3 (chip 0x11) in the machgun trace
