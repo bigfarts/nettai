@@ -1,0 +1,3 @@
+# A navi chip (subtype 15): its navi is JudgeMan.
+
+script = "../../objects/judge-man/judge_man.luau"

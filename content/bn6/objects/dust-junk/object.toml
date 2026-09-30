@@ -1,0 +1,6 @@
+# DustMan's thrown junk (attack object #0xB3, `sub_80DBB40`) is a script.
+
+[kind]
+pool = "attack"
+index = 0xB3
+script = "dust_junk.luau"

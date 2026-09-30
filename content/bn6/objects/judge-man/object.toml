@@ -1,0 +1,6 @@
+# JudgeMan, the JudgeMan chips' navi (actor object #0xF, `sub_80BA708`), is a script.
+
+[kind]
+pool = "actor"
+index = 0x0F
+script = "judge_man.luau"

@@ -29,6 +29,8 @@ fn battles_run_the_content_scripts() {
         [
             "area-grab",
             "attachment",
+            "dive-man",
+            "dive-wave",
             "dust-ball",
             "elmnt-bolt",
             "elmnt-ice",
@@ -37,8 +39,12 @@ fn battles_run_the_content_scripts() {
             "erase-beam",
             "erase-man",
             "erase-mark",
+            "falling-rock",
             "grab-shot",
+            "ground-drill",
+            "ground-man",
             "meteor",
+            "rubble",
             "spout-ball",
             "spout-geyser",
             "spout-man",
@@ -139,10 +145,40 @@ fn the_water_navi_attacks() {
 }
 
 #[test]
+fn the_drilling_navi_attacks() {
+    use crate::object::Pool::{Actor, Attack, Effect};
+    let seen = duel_with(&[testing::GROUND], 2400, 11);
+    let ticks = |k| seen.get(&k).copied().unwrap_or(0);
+    // The drilling navi comes with his overlay and drills forward with
+    // his drill on; at the far column rocks fall (and break into rubble).
+    assert!(ticks((Actor, 0x17)) > 0, "GroundMan: {seen:?}");
+    assert!(ticks((Actor, 0x56)) > 0, "GroundMan's overlay: {seen:?}");
+    assert!(ticks((Effect, 0x61)) > 0, "GroundMan's drill: {seen:?}");
+    assert!(ticks((Attack, 0x80)) > 0 && ticks((Effect, 0x09)) > 0, "GroundMan's rocks: {seen:?}");
+}
+
+#[test]
+fn the_wave_navi_attacks() {
+    use crate::object::Pool::{Actor, Attack};
+    let seen = duel_with(&[testing::DIVE], 2400, 11);
+    let ticks = |k| seen.get(&k).copied().unwrap_or(0);
+    // The wave navi comes with his overlay and raises waves.
+    assert!(ticks((Actor, 0x0B)) > 0, "DiveMan: {seen:?}");
+    assert!(ticks((Actor, 0x56)) > 0, "DiveMan's overlay: {seen:?}");
+    assert!(ticks((Attack, 0x39)) > 0, "DiveMan's waves: {seen:?}");
+}
+
+#[test]
 fn scripted_chips_roll_back() {
     // A copy of the battle taken at any tick plays on exactly as the
     // battle does: the scripts' state is all in the battle.
-    for chips in [&[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..], &[testing::ELEMENTS], &[testing::SPOUT]] {
+    for chips in [
+        &[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..],
+        &[testing::ELEMENTS],
+        &[testing::SPOUT],
+        &[testing::GROUND],
+        &[testing::DIVE],
+    ] {
         let setup = || scenario::setup_with(chips);
         let tape = scenario::record_on(setup(), 2400, 11);
         let mut b = Battle::new(setup(), scenario::content());

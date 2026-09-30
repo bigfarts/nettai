@@ -1,0 +1,6 @@
+# JudgeMan's book (attack object #0x94, `sub_80D7ACC`) is a script.
+
+[kind]
+pool = "attack"
+index = 0x94
+script = "judge_book.luau"

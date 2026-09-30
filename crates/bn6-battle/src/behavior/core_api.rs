@@ -347,6 +347,10 @@ impl CoreApi for Battle {
         kinds::obstacle::remove(self, o);
     }
 
+    fn loop_register(&self) -> u32 {
+        self.objects.loop_register()
+    }
+
     // ---- Panels -----------------------------------------------------------
 
     fn panel_valid(&self, p: PanelPos) -> bool {

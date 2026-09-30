@@ -1,0 +1,6 @@
+# CircusMan, the CrcusMan chips' navi (actor object #0xE, `sub_80BA364`), is a script.
+
+[kind]
+pool = "actor"
+index = 0x0E
+script = "circus_man.luau"

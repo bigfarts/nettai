@@ -8,7 +8,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T1 0x00 | 0x080b81ec | 119138 |
 | T1 0x05 | 0x080b8cd8 | 9798 |
 | T1 0x09 | 0x080b94bc | 545 (SpoutMan: the pack's `objects/spout-man`, chips.md §3.6.11) |
-| T1 0x0f | 0x080ba708 | 438 |
+| T1 0x0f | 0x080ba708 | 438 (JudgeMan: the pack's `objects/judge-man`, chips.md §3.6.29) |
 | T1 0x10 | 0x080baa8c | 481 (ElmntMan: the pack's `objects/elmnt-man`, chips.md §3.6.7) |
 | T1 0x15 | 0x080bb608 | 513 (EraseMan: the pack's `objects/erase-man`, chips.md §3.6.7) |
 | T1 0x1b | 0x080bc650 | 424 (Cross navi image: `kinds::cross_merge`, objects-and-player.md §12.10) |
@@ -36,7 +36,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T3 0x8b | 0x080d6924 | 225 |
 | T3 0x8d | 0x080d6bd4 | 38 (meteor: the pack's `objects/meteor`, chips.md §3.6.7) |
 | T3 0x8e | 0x080d6d80 | 96 (ElmntMan's ice: the pack's `objects/elmnt-ice`, chips.md §3.6.7) |
-| T3 0x94 | 0x080d7acc | 217 |
+| T3 0x94 | 0x080d7acc | 217 (JudgeMan's book: the pack's `objects/judge-book`, chips.md §3.6.29) |
 | T3 0xaf | 0x080db570 | 2197 |
 | T3 0xb0 | 0x080db6a4 | 1852 (DustCross junk ball: the pack's `objects/dust-ball`, objects-and-player.md §B6) |
 | T3 0xb4 | 0x080dbcec | 512 |
@@ -67,7 +67,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T4 0x2f | 0x080e3ab8 | 471 |
 | T4 0x3b | 0x080e4910 | 494 |
 | T4 0x48 | 0x080e5c2c | 847 |
-| T4 0x5a | 0x080e70c8 | 184 |
+| T4 0x5a | 0x080e70c8 | 184 (JudgeMan's whip: the pack's `objects/judge-whip`, chips.md §3.6.29) |
 | T4 0x5d | 0x080e74d4 | 762 (Invisibl dimming controller: `kinds::invisible`, chips.md §3.6) |
 | T4 0x62 | 0x080e78bc | 260 (EraseMan's aim mark: the pack's `objects/erase-mark`, chips.md §3.6.7) |
 | T4 0x6b | 0x080e807c | 54 |

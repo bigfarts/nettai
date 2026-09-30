@@ -1,0 +1,6 @@
+# DustMan, the DustMan chips' navi (actor object #0x18, `sub_80BBF0C`), is a script.
+
+[kind]
+pool = "actor"
+index = 0x18
+script = "dust_man.luau"

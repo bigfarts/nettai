@@ -563,6 +563,11 @@ declare battle: {
     -- `sub_800F884`: a chip removes an obstacle (with collision data, it
     -- leaves at its next update).
     remove_obstacle: (o: Object) -> (),
+    -- The r3 the object update loop (`object_800372A`) leaves for the
+    -- object updating now: 4 × how many objects of the previous object's
+    -- pool it passed before that one this tick. Routines that never set r3
+    -- spawn with it as a position (register garbage that is knowable).
+    loop_register: () -> number,
     -- Spawn into the pool's lowest free slot; it runs later this tick,
     -- right after the spawner. nil if the pool is full.
     spawn: (pool: Pool, index: number, pos: Vec3?, params: { number }?) -> Object?,

@@ -1,0 +1,3 @@
+# A navi chip (subtype 11): its navi is DustMan.
+
+script = "../../objects/dust-man/dust_man.luau"

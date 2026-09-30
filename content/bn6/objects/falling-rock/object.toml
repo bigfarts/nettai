@@ -1,0 +1,6 @@
+# A falling rock (attack object #0x80, `sub_80D535C`), GroundMan's, is a script.
+
+[kind]
+pool = "attack"
+index = 0x80
+script = "falling_rock.luau"

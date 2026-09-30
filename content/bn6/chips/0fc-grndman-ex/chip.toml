@@ -1,0 +1,3 @@
+# A navi chip (subtype 10): its navi is GroundMan.
+
+script = "../../objects/ground-man/ground_man.luau"

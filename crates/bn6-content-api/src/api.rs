@@ -677,6 +677,11 @@ pub trait CoreApi {
     /// `sub_800F884`: a chip removes `o` (an obstacle with collision data
     /// leaves at its next update).
     fn remove_obstacle(&mut self, o: ObjectRef);
+    /// The r3 the object update loop (`object_800372A`) leaves for the
+    /// object updating now: 4 × how many objects of the previous object's
+    /// pool it passed before that one this tick. Routines that never set
+    /// r3 spawn with it as a position.
+    fn loop_register(&self) -> u32;
 
     // ---- Panels -----------------------------------------------------------
 

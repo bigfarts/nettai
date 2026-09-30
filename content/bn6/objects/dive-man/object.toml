@@ -1,0 +1,6 @@
+# DiveMan, the DiveMan chips' navi (actor object #0xB, `sub_80B99C0`), is a script.
+
+[kind]
+pool = "actor"
+index = 0x0B
+script = "dive_man.luau"

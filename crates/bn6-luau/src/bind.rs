@@ -848,6 +848,7 @@ fn battle_lib(lua: &Lua) -> mlua::Result<mlua::Table> {
     lib_fn!(lua, t, "remove_obstacle", |_, o: mlua::UserDataRef<Object>| {
         with(|api, _| Ok(api.remove_obstacle(o.0)))
     });
+    lib_fn!(lua, t, "loop_register", |_, ()| with(|api, _| Ok(api.loop_register())));
     lib_fn!(lua, t, "navi_record", |lua, name_id: LuaValue| {
         let name_id = u16_arg(name_id, "NameID")?;
         let Some(r) = with(|api, _| Ok(api.navi_record(name_id)))? else { return Ok(LuaValue::Nil) };

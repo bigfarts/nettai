@@ -1341,6 +1341,164 @@ Param2 ticks counted from the tick they appear.
 Unverified (no scenario reaches them; the navi AI's): the ball, splash, pillar, geyser and marks with Param1 (or
 Param3) other than SpoutMan's, which stand still while dimmed and end with their owner's action 0xB.
 
+#### 3.6.25 GroundMan (navi chip subtype 10, T1 0x17)
+
+Lab (the scratch navi scenarios): navis/0x0fb-grndman/long{,-miss,-adjacent,-holes}, the EX and SP `long`s, and
+rocks{,-miss} on the gregar base's stage (rocks on the field) match every frame. The pack's scripts:
+objects/ground-man, ground-drill, falling-rock, rubble.
+
+**GroundMan, T1 0x17 (`sub_80BBB98`)**, spawned by `sub_80BBDE8` like ElmntMan; his init stores Z = 0 (a word). Sprite
+(8, 9), ground shadow, his parts (`sub_8010DF6(2, 9, 1)`: body overlay 0xB). Actions enter on CurPhase 0, and his
+sprite steps while dimmed:
+- 0: anim 3, sound 0x94, VISIBLE, Timer:Timer2 = 9; panel flags 0x10010 → 4, else 0x10.
+- 4: anim 0, X velocity −front · 0x8000, Timer:Timer2 = 40; X moves while the timer is 25..10; at 25 left anim 0x11 and
+  sound 0xE6; → 8.
+- 8 (`sub_80BBCD8`): anim 0x12, X velocity front · 8 px, Timer = |far column (6; side 1: 1) − x| · 0x280000 / 0x80000
+  (5 ticks a column), sound 0x1C0, his drill (T4 0x61, Param1 1) in ExtraVars[0]. Each tick he moves; entering a new
+  panel spawns a hit region there (region 1, hit effect 0xA, target 5, self 0x15, modifier 3; runs while dimmed); if
+  the panel fails `byte_80BBD50[side]` (solid, without 0x05800000 / 0x0A800000: the other side's body or object, or
+  neutral) → 0x10; else when the timer runs out → 0xC.
+- 0xC (`sub_80BBD60`): Timer 150, Timer2 0, the last rock's panel (ExtraVars[1..2]) = (0, 0), sound 0xE5, a camera
+  shake (presentation); every 25 ticks from the first (`sub_80BBE58`): with his panel set to the last rock's
+  (`object_getPanelsExceptCurrentFiltered` then leaves it out), the panels meeting `off_80BBEE0[side]` (side 0:
+  0x04000020 required; side 1: 0x08000000 required, 0x20 forbidden), else `byte_80BBEF4[side]` (side 0: 0x20; side 1:
+  not 0x20); one at random (`GetPositiveSignedRNG2` mod n, the BIOS division's remainder) gets a T3 0x80 rock
+  (Param1 10, Param2 1, Param3 1, element his, Z 0), and becomes the last; his panel is restored. → 0x10.
+- 0x10: anim 4, Timer:Timer2 = 4, his drill taken off (`sub_80E78AE`: its state word = 8); to −1; his parts off, the
+  controller's flag cleared, state 8.
+
+**His drill, T4 0x61 (`sub_80E7788`)**: sprite (0x10, 0x4F) on its owner (his X, Y, Z every tick), with his
+visibility, palette, colour shader, white flash, mosaic, facing and alpha. Param1 1 (his) steps while dimmed and
+stays until taken off; with Param1 0 it steps as `object_updateSpritePaused` and goes once the owner's action isn't
+Param2.
+
+**The rock, T3 0x80 (`sub_80D535C`)**: 160 pixels over its panel, sprite (0x10, 5); collision self 0x15, target 5,
+modifier 3, hit spark 0xA, region off. Action 0: its panel highlighted 4 ticks out of 8 for Param1 ticks. 4: a ground
+shadow, falling 0x65000 a tick (`byte_80D5574`) for 25 ticks, then Z 0 and region 1. 8: on a solid panel it breaks
+(`sub_80D5516`: two T4 9 rubble pieces, one `GetPositiveSignedRNG2() & 3` picking the first of two consecutive
+velocity pairs of `byte_80D5550`) and, with Param3, cracks the panel; sound 0xD9 unless Param4; region off, state 8.
+Each tick it resolves its hits (a hit breaks it too), acts unless dimmed (Param2 1 acts anyway) and registers again.
+
+**Rubble, T4 9 (`sub_80E0FA0`)**: spawned by `sub_80E1084` at the rock (Z 0) with its velocity and object +0x0C =
+2 (its sprite's priority, `sub_8002E14`); sprite (0x10, 5) animation 1 stepped once, then its first update at once;
+it flies, gravity −0x3000 a tick, until below the ground; then 10 ticks blinking (shown while the timer has bit 1).
+Also spawned by `sub_80C7EC8` (another rock's breaking; not ported here).
+
+Unverified: the drill with Param1 0, the rock with Param2 0, Param3 0 or Param4 set (other callers of `sub_80D54F0`
+and `sub_80E7896`: GroundCross and the navi AI), a rock's hit on something (the lab's rocks never land on an enemy).
+
+#### 3.6.26 DustMan (navi chip subtype 11, T1 0x18)
+
+Lab: navis/0x0fe-dustman/long{,-miss,-adjacent,-holes}, the EX and SP `long`s, and rocks{,-miss} (the gregar base's
+rocks, which he takes and throws) match every frame. The pack's scripts: objects/dust-man, dust-junk (and the
+existing dust-ball).
+
+**DustMan, T1 0x18 (`sub_80BBF0C`)**, spawned by `sub_80BC0DA` like ElmntMan; Z = the spawner's address `0x080BC0DB`,
+of which his init keeps the low half. Sprite (8, 0xA), ground shadow, no parts. Actions (CurPhase entry):
+- 0: anim 3, sound 0x94, VISIBLE, Timer:Timer2 = 10; panel flags 0x10010 → 4, else 0x10.
+- 4: Timer:Timer2 = 20; at 10 left (`sub_80BC100`) he takes every object of the field-object registry (BattleState
+  +0xA0, all eight words) whose NameID isn't 0xD3, 0xDA, 0xE9 or 0xEA (`sub_800F486`): its NameID into his
+  ExtraVars[n], the chip removes it (`sub_800F884`); Param1 = how many, sound 0xAD if any. → 8.
+- 8: anim 0xF, Timer:Timer2 = 34, anim 0x11 at 9 left → 0xC.
+- 0xC (`sub_80BC058`): a T3 0xB0 ball of junk from his panel (Param1 1: it runs on while dimmed; `sub_80BC13E` also
+  sets up an effect's registers but never calls it), sound 0xFF, Param2 = 0, Timer = (Param1 + 1) · 20, Timer2 = 20;
+  every 20 ticks a T3 0xB3 junk from his panel with the next NameID (ExtraVars[Param2]), sound 0xFF, Param2 + 1;
+  when the timer runs out → 0x10.
+- 0x10: anim 4, Timer:Timer2 = 4; to −1; the controller's flag cleared, state 8.
+
+**His junk, T3 0xB3 (`sub_80DBB40`)**: its NameID's look (`sub_800F26C`: for NameIDs 0xCD..0xFF `byte_8021220`, five
+bytes each, the pack's `objects/dust-junk` `[[look]]`: sprite, animation, palette, shadow; a category 0xFF means none,
+and it frees itself); NameIDs 0xD8 and 0xD9 get a sprite attribute bit (`sub_8002EAC`, presentation) instead of the
+flip (the flip otherwise = its side). 18 pixels ahead of its panel at a height of 16 (its Z fraction is the r3
+`sub_80BC160` leaves unset: the object loop's, 4 × DustMan's predecessor's place in its pool's list for the tick,
+`object_800372A`, which the engine models as `battle.loop_register`); collision self 6, target 5, modifier 3, hit spark 0xA. It flies 6 pixels a tick
+for |far edge (x 7 / 0) − X| / 6 ticks (`sub_80DBCBA`); a hit (resolved each tick, or seen after moving) ends it;
+off the field its region goes. It steps while dimmed.
+
+Unverified: NameIDs outside 0xCD..0xFF (`enemy_getStruct1`, a virus's or navi's sprite: the pack doesn't have it,
+and the script stops with an error; no field object has such a NameID), 0xD8/0xD9 and the table's none entries.
+
+#### 3.6.27 DiveMan (navi chip subtype 13, T1 0xB)
+
+Lab: navis/0x104-diveman/long{,-miss,-adjacent,-holes}, the EX and SP `long`s and rocks{,-miss} match every frame.
+The pack's scripts: objects/dive-man, dive-wave.
+
+**DiveMan, T1 0xB (`sub_80B99C0`)**, spawned by `sub_80B9B6E`; Z = `0x080B9B6F`, low half kept. Sprite (8, 0xD), ground
+shadow, his parts (`sub_8010DF6(2, 0xD, 1)`: body overlay 3). Actions (CurPhase entry): 0: anim 7, sound 0xE1,
+VISIBLE, Timer:Timer2 = 19 → 4: Timer:Timer2 = 30 → 8: anim 4, 30 ticks (a camera shake) → 0xC (`sub_80B9AEA`): anim
+5, the waves, 60 ticks (a camera shake at 30 left, anim 0 at 20) → 0x10: anim 8, 14 ticks → 0x14: his parts off, the
+controller's flag cleared, state 8.
+The waves (`sub_80B9B94`): in each row 1..3, from his side's far column toward the enemy
+(`object_getClosestPanelMatchingRowFiltered`: side 0 from x 6 down, side 1 from x 1 up), the first panel meeting
+`byte_80B9BF0[side]` (side 0: not 0x20; side 1: 0x20 — his side's), if it also meets `byte_80B9C04` (solid, not
+0x03800000): a T3 0x39 wave there (Param1 4; Z = the row − 1, which the panel check leaves in r3). A compare of the
+column with the back column there has no effect.
+
+**The wave, T3 0x39 (`sub_80CB0DC`)**: on its panel (Z fraction kept), sprite (8, 0xD) animation 0x14, sound 0xA7. A hit
+region on its panel lasting 32 ticks (its Timer; region 1, hit effect 2, target 5, self 0xA, modifier 3; runs while
+dimmed), 32 ticks: at 13 left regions on the next two panels toward the enemy (`object_getEnemyDirection`, by side
+only) lasting 13, at 7 left a T4#0 effect 0x2B on the second, at 0 one on the first and state 8. Invalid panels are
+skipped. Param1 4 acts and steps while dimmed; other Param1s wait a dimming out (unverified: the navi AI's).
+
+#### 3.6.28 CircusMan (navi chip subtype 14, T1 0xE)
+
+Lab: navis/0x107-crcusman/long (the catch), long-miss and long-adjacent (nobody three panels ahead), long-holes, the
+EX and SP `long`s and rocks{,-miss} match every frame. The pack's script: objects/circus-man.
+
+**CircusMan, T1 0xE (`sub_80BA364`)**, spawned by `sub_80BA660`; Z = `0x080BA661`, low half kept. Sprite (8, 0xE), no
+shadow, his parts (`sub_8010DF6(2, 0xE, 1)`: body overlays 6 and 7, the second in his ExtraVars[0]). Actions
+(CurPhase entry; Z moves are halfword stores to Z's whole part):
+- 0: anim 0x13, sound 0x94, VISIBLE, Timer:Timer2 = 10; 0x10010 → 4, else 0x24.
+- 4: anim 0, Timer:Timer2 = 30 → 8: anim 0xD, 19 ticks → 0xC (`sub_80BA4BA`): his panel 3 ahead (a byte store),
+  coordinates from it, Z 30, anim 0xE, Timer:Timer2 = 5; 6 pixels down a tick; then an enemy navi's body there
+  (`off_80BA520`) → 0x10, else 0x1C.
+- 0x10: anim 0xF, Y and Z one pixel more, sound 0x1AA, 46 ticks (sound 0x114 at 21 left) → 0x14: anim 0x10, 72 ticks;
+  every 12 from the first a hit region on his panel (region 1, hit effect 0xFF, target 5, self 0x16, modifier 3;
+  runs while dimmed) and a sparkle (`sub_80BA6B6`: T4#0 effect 0x21 at his panel's center + (±(r & 0x1F), 16, 36
+  ± (r' & 0xF)) pixels, the signs from each draw's bit 0; two `GetPositiveSignedRNG2`s) → 0x18: anim 0x11, 7 ticks
+  → 0x20.
+- 0x1C: 20 ticks → 0x20: anim 0x12, 6 pixels up a tick for 5 ticks; his parts off (`sub_8011044(2, 0xE)`: both
+  overlays), the controller's flag cleared, state 8.
+- 0x24: anim 0xD, 19 ticks; parts off, flag cleared, state 8.
+
+#### 3.6.29 JudgeMan (navi chip subtype 15, T1 0xF)
+
+Lab: navis/0x10a-judgeman/long{,-miss,-adjacent,-holes}, the EX and SP `long`s (nothing of his side taken: no
+books), rocks{,-miss}, and grabbed{,-up} for all three chips (after the opponent's AreaGrab took his front column:
+the books) match every frame. The pack's scripts: objects/judge-man, judge-whip, judge-book.
+
+**JudgeMan, T1 0xF (`sub_80BA708`)**, spawned by `sub_80BA920`; Z = `0x080BA921`, low half kept. Sprite (8, 0xF),
+ground shadow, no parts. Actions (CurPhase entry):
+- 0: anim 3, sound 0x94, VISIBLE, Timer:Timer2 = 2; 0x10010 → 4, else 0x18. 4: anim 0, Timer:Timer2 = 30 → 8: anim 6,
+  his whip (T4 0x5A, Param1 1) in ExtraVars[0], 15 ticks → 0xC.
+- 0xC (`sub_80BA84C`): anim 7, hit regions on the three panels ahead (region 1, hit effect 3, target 5, self 0x19,
+  modifier 1, status 0x11; they run while dimmed), sound 0xBA, 30 ticks; the whip taken off (state word 8); the
+  books' panels (`sub_80BA9A4`): in columns 5, 4, 3, 2 (side 1: 2, 3, 4, 5), rows 1..3, those his side's home that the
+  other side holds now (`sub_800D618`) that are solid and unoccupied (0x10 without 0x0F880080), packed into +0x68;
+  ExtraVars[1] = how many; any → 0x10, else 0x18.
+- 0x10: anim 5, 30 ticks; at 15 left (`sub_80BAA0C`) a T3 0x94 book on each (Param1 = its index, Param2 1, element
+  Null, the damage word his chip's Param1 with his damage's flag bits and counter byte; Z = those flag bits, of which
+  it keeps the fraction; ExtraVars[0] → his ExtraVars[5], the books-done count; a book that can't spawn counts
+  itself at once) → 0x14.
+- 0x14: anim 0; once the books done equal the books, in each of his columns the first row his side lost starts
+  coming back (`object_setPanelAllianceTimerShort`: its column's timer 1) → 0x18.
+- 0x18: anim 4, 2 ticks; the controller's flag cleared, state 8.
+
+**His whip, T4 0x5A (`sub_80E70C8`)**: his sprite's animation 8 at his position; 15 ticks, then animation 9 (action 8
+holds). Param1 1 (his) steps while dimmed until taken off; Param1 0 goes when its owner leaves action 0xA and waits
+a dimming out (unverified).
+
+**The book, T3 0x94 (`sub_80D7ACC`)**: on its panel (Z fraction kept), his sprite animation 0xA, ground shadow;
+collision self 4, target 5, modifier 1, hit spark 6 (without collision it counts itself done and frees itself).
+Action 0: sound 0x94, Param1 · 12 + 30 ticks to −1. Action 4: anim 0xB, its target (`sub_80D7CCC`: along its row
+from its side's back column the first enemy navi's body; else the first column from there holding one, its first
+row; else past the far edge in its row) into ExtraVars[1..2], then its heading (`sub_80D7D4C`: the axis other than
+Param2's when the target differs on it, else the other; after two tries it reverses; 2.25 pixels a tick, snapped to
+its panel's center, the sprite flipped by its X speed). Each tick it moves; passing its panel's center on its axis
+(`sub_800E708`), it ends if the panel under it is the target's, else heads again; then its panel follows and a
+panel that isn't solid ends it. A hit on the other side's body or object (`byte_80D7BA8`) or the battle's end ends
+it (a byte store of state 8: its action stays); its destroy counts it done.
+
 ---
 
 ## 4. Worked example: GunDelS3 (chip 0x11) in the machgun trace

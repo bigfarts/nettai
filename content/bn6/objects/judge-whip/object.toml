@@ -1,0 +1,6 @@
+# JudgeMan's whip (effect object #0x5A, `sub_80E70C8`) is a script.
+
+[kind]
+pool = "effect"
+index = 0x5A
+script = "judge_whip.luau"

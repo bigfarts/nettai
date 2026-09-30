@@ -1,0 +1,6 @@
+# GroundMan, the GrndMan chips' navi (actor object #0x17, `sub_80BBB98`), is a script.
+
+[kind]
+pool = "actor"
+index = 0x17
+script = "ground_man.luau"

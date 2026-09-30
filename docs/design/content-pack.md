@@ -74,6 +74,7 @@ graphics/...  sound/...                   see asset-formats.md
 | `objects/absorbed-obstacle/object.toml` | `[[obstacle]]`: the sprite an absorbed obstacle flies with, by obstacle kind | `ObjectData::absorbed_sprites` |
 | `objects/body-overlay/object.toml` | Cross body overlays: sprite, in front by animation | `ObjectData::body_overlays` |
 | `objects/sun-beam/object.toml` | the sun beam's sprites by look | `ObjectData::sun_beam_looks` |
+| `objects/dust-junk/object.toml` | `[[look]]`: how a field object looks by NameID 0xCD..=0xFF (sprite, animation, palette, shadow; no sprite is the table's none), what DustMan throws | `ObjectData::name_looks` |
 | `objects/attachment/object.toml` | attachments no chip declares | `ObjectData::attachments` (with the chips' own) |
 | `objects/KIND/object.toml` `[kind]` | the object slot a script implements: pool, index, script, whether its spawn position is register garbage | `ObjectData::kinds`, `ObjectKind` |
 | `**/*.luau` | the scripts, by path without `.luau` | `Content::scripts` |

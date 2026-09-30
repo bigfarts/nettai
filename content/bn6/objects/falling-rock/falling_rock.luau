@@ -6,7 +6,7 @@
 -- panel, it breaks into rubble (objects/rubble), cracking the panel with
 -- Param3 set; sound 0xD9 unless Param4. Param2 1: it acts while dimmed.
 -- GroundMan drops them (objects/ground-man); other callers of
--- `sub_80D54F0` too. See docs/engine/chips.md §3.6.7.
+-- `sub_80D54F0` too. See docs/engine/chips.md §3.6.25.
 
 local rubble = require("../rubble/rubble")
 

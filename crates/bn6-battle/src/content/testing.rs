@@ -38,6 +38,10 @@ pub const GRAB: ChipId = 0x07;
 pub const ELEMENTS: ChipId = 0x08;
 /// A navi chip (action 0x1B, subtype 7: the water navi).
 pub const SPOUT: ChipId = 0x09;
+/// A navi chip (action 0x1B, subtype 10: the drilling navi).
+pub const GROUND: ChipId = 0x0A;
+/// A navi chip (action 0x1B, subtype 13: the wave navi).
+pub const DIVE: ChipId = 0x0B;
 
 /// Actor lists: two navis, side 1's first (the usual netbattle order)...
 pub const TWO_NAVIS: ActorListId = ActorListId(0);
@@ -156,6 +160,12 @@ pub fn scripts() -> Scripts {
                 ("objects/spout-pillar/spout_pillar", "objects/spout-pillar/spout_pillar"),
                 ("objects/spout-geyser/spout_geyser", "objects/spout-geyser/spout_geyser"),
                 ("objects/spout-mark/spout_mark", "objects/spout-mark/spout_mark"),
+                ("objects/ground-man/ground_man", "objects/ground-man/ground_man"),
+                ("objects/ground-drill/ground_drill", "objects/ground-drill/ground_drill"),
+                ("objects/falling-rock/falling_rock", "objects/falling-rock/falling_rock"),
+                ("objects/rubble/rubble", "objects/rubble/rubble"),
+                ("objects/dive-man/dive_man", "objects/dive-man/dive_man"),
+                ("objects/dive-wave/dive_wave", "objects/dive-wave/dive_wave"),
             ];
             let weapons = weapons().into_iter().map(|w| {
                 let module = w.script;
@@ -217,6 +227,12 @@ fn kinds() -> Vec<ObjectKind> {
         ObjectKind { scratch_z_fraction: true, ..kind("spout-pillar", Pool::Effect, 0x2D, "objects/spout-pillar/spout_pillar") },
         kind("spout-geyser", Pool::Attack, 0x17, "objects/spout-geyser/spout_geyser"),
         kind("spout-mark", Pool::Effect, 0x2E, "objects/spout-mark/spout_mark"),
+        kind("ground-man", Pool::Actor, 0x17, "objects/ground-man/ground_man"),
+        kind("ground-drill", Pool::Effect, 0x61, "objects/ground-drill/ground_drill"),
+        kind("falling-rock", Pool::Attack, 0x80, "objects/falling-rock/falling_rock"),
+        kind("rubble", Pool::Effect, 0x09, "objects/rubble/rubble"),
+        kind("dive-man", Pool::Actor, 0x0B, "objects/dive-man/dive_man"),
+        kind("dive-wave", Pool::Attack, 0x39, "objects/dive-wave/dive_wave"),
     ];
     kinds.sort_by(|a, b| a.name.cmp(&b.name));
     kinds
@@ -325,6 +341,21 @@ fn chips() -> Vec<ChipData> {
             damage: 40,
             script: Some("objects/spout-man/spout_man".into()),
             ..chip(SPOUT, "Spout", 0x1B, 7)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Mega,
+            damage: 30,
+            script: Some("objects/ground-man/ground_man".into()),
+            ..chip(GROUND, "Ground", 0x1B, 10)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            element: Element::Aqua,
+            class: ChipClass::Mega,
+            damage: 40,
+            script: Some("objects/dive-man/dive_man".into()),
+            ..chip(DIVE, "Dive", 0x1B, 13)
         },
     ]
 }
@@ -641,6 +672,18 @@ fn animations() -> Animations {
     sprites.insert(SpriteId { category: 0x10, index: 0x1F }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 4]);
     sprites.insert(SpriteId { category: 0x10, index: 0x20 }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 3]);
     sprites.insert(SpriteId { category: 0x10, index: 0x21 }, vec![vec![f(6, 0), f(6, LAST | LOOP)]]);
+    // The drilling navi, his drill, the rocks and rubble; the wave navi and
+    // his wave.
+    let mut ground = vec![once(4); 0x13];
+    ground[0] = vec![f(8, 0), f(8, LAST | LOOP)];
+    ground[0x12] = vec![f(3, 0), f(3, LAST | LOOP)];
+    sprites.insert(SpriteId { category: 8, index: 9 }, ground);
+    sprites.insert(SpriteId { category: 0x10, index: 0x4F }, vec![vec![f(2, 0), f(2, LAST | LOOP)]]);
+    sprites.insert(SpriteId { category: 0x10, index: 5 }, vec![vec![f(30, LAST | LOOP)], once(6)]);
+    let mut dive = vec![once(4); 0x15];
+    dive[0] = vec![f(8, 0), f(8, LAST | LOOP)];
+    dive[0x14] = vec![f(4, 0), f(4, LAST | LOOP)];
+    sprites.insert(SpriteId { category: 8, index: 0x0D }, dive);
     // The buster's muzzle flash, and its arm (by form).
     sprites.insert(SpriteId { category: 0x0C, index: 0x06 }, vec![vec![f(2, 0), f(2, LAST)]]);
     sprites.insert(SpriteId { category: 0x0C, index: 0x03 }, vec![vec![f(30, LAST | LOOP)]; 0x19]);

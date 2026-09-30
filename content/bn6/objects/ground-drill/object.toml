@@ -1,0 +1,6 @@
+# GroundMan's drill (effect object #0x61, `sub_80E7788`) is a script.
+
+[kind]
+pool = "effect"
+index = 0x61
+script = "ground_drill.luau"

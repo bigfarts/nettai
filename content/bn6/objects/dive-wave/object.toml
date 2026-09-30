@@ -1,0 +1,6 @@
+# DiveMan's wave (attack object #0x39, `sub_80CB0DC`) is a script.
+
+[kind]
+pool = "attack"
+index = 0x39
+script = "dive_wave.luau"

@@ -1,0 +1,3 @@
+# A navi chip (subtype 14): its navi is CircusMan.
+
+script = "../../objects/circus-man/circus_man.luau"

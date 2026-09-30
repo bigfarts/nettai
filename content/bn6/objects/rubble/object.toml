@@ -1,0 +1,6 @@
+# Rubble (effect object #9, `sub_80E0FA0`), a broken rock's pieces, is a script.
+
+[kind]
+pool = "effect"
+index = 0x09
+script = "rubble.luau"

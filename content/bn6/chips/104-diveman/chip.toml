@@ -1,0 +1,3 @@
+# A navi chip (subtype 13): its navi is DiveMan.
+
+script = "../../objects/dive-man/dive_man.luau"
