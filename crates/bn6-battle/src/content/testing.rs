@@ -38,6 +38,13 @@ pub const GRAB: ChipId = 0x07;
 pub const ELEMENTS: ChipId = 0x08;
 /// A navi chip (action 0x1B, subtype 7: the water navi).
 pub const SPOUT: ChipId = 0x09;
+/// A navi chip (action 0x1B, subtype 27: the cloaked navi and his homing
+/// shots).
+pub const ANOMALY: ChipId = 0x0A;
+/// A navi chip (action 0x1B, subtype 28: the sword navi's delta). (Not in
+/// the duels: his sword is attachment kind 3, which in this content sits at
+/// an attach point, and attach points are only known for player NameIDs.)
+pub const DELTA: ChipId = 0x0B;
 
 /// Actor lists: two navis, side 1's first (the usual netbattle order)...
 pub const TWO_NAVIS: ActorListId = ActorListId(0);
@@ -156,6 +163,10 @@ pub fn scripts() -> Scripts {
                 ("objects/spout-pillar/spout_pillar", "objects/spout-pillar/spout_pillar"),
                 ("objects/spout-geyser/spout_geyser", "objects/spout-geyser/spout_geyser"),
                 ("objects/spout-mark/spout_mark", "objects/spout-mark/spout_mark"),
+                ("objects/bass-anly/bass_anly", "objects/bass-anly/bass_anly"),
+                ("objects/bass-anly-shot/bass_anly_shot", "objects/bass-anly-shot/bass_anly_shot"),
+                ("objects/delta-ray/delta_ray", "objects/delta-ray/delta_ray"),
+                ("objects/follow-effect/follow_effect", "objects/follow-effect/follow_effect"),
             ];
             let weapons = weapons().into_iter().map(|w| {
                 let module = w.script;
@@ -217,6 +228,10 @@ fn kinds() -> Vec<ObjectKind> {
         ObjectKind { scratch_z_fraction: true, ..kind("spout-pillar", Pool::Effect, 0x2D, "objects/spout-pillar/spout_pillar") },
         kind("spout-geyser", Pool::Attack, 0x17, "objects/spout-geyser/spout_geyser"),
         kind("spout-mark", Pool::Effect, 0x2E, "objects/spout-mark/spout_mark"),
+        kind("bass-anly", Pool::Actor, 0x50, "objects/bass-anly/bass_anly"),
+        kind("bass-anly-shot", Pool::Attack, 0xC1, "objects/bass-anly-shot/bass_anly_shot"),
+        kind("delta-ray", Pool::Actor, 0x3D, "objects/delta-ray/delta_ray"),
+        kind("follow-effect", Pool::Effect, 0x31, "objects/follow-effect/follow_effect"),
     ];
     kinds.sort_by(|a, b| a.name.cmp(&b.name));
     kinds
@@ -325,6 +340,20 @@ fn chips() -> Vec<ChipData> {
             damage: 40,
             script: Some("objects/spout-man/spout_man".into()),
             ..chip(SPOUT, "Spout", 0x1B, 7)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Giga,
+            damage: 30,
+            script: Some("objects/bass-anly/bass_anly".into()),
+            ..chip(ANOMALY, "Anomaly", 0x1B, 27)
+        },
+        ChipData {
+            flags: ChipFlags(ChipFlags::HAS_DAMAGE | ChipFlags::NAVI | ChipFlags::LIBRARY),
+            class: ChipClass::Giga,
+            damage: 50,
+            script: Some("objects/delta-ray/delta_ray".into()),
+            ..chip(DELTA, "Delta", 0x1B, 28)
         },
     ]
 }
@@ -631,6 +660,16 @@ fn animations() -> Animations {
     sprites.insert(SpriteId { category: 0x10, index: 0x1F }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 4]);
     sprites.insert(SpriteId { category: 0x10, index: 0x20 }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 3]);
     sprites.insert(SpriteId { category: 0x10, index: 0x21 }, vec![vec![f(6, 0), f(6, LAST | LOOP)]]);
+    // The cloaked navi (and his cloak, on animation + 0x14) and his shot
+    // (flying, bursting); the sword navi, his mark and his burst.
+    let mut anomaly = vec![once(4); 0x22];
+    anomaly[0] = vec![f(8, 0), f(8, LAST | LOOP)];
+    sprites.insert(SpriteId { category: 8, index: 0x13 }, anomaly);
+    sprites.insert(SpriteId { category: 0x10, index: 0x0D }, vec![vec![f(2, 0), f(2, LAST | LOOP)], once(6)]);
+    let mut delta = vec![once(4); 0x10];
+    delta[0] = vec![f(8, 0), f(8, LAST | LOOP)];
+    sprites.insert(SpriteId { category: 8, index: 0x0B }, delta);
+    sprites.insert(SpriteId { category: 0x10, index: 0x0E }, vec![vec![f(3, 0), f(3, LAST | LOOP)]; 2]);
     // The buster's muzzle flash, and its arm (by form).
     sprites.insert(SpriteId { category: 0x0C, index: 0x06 }, vec![vec![f(2, 0), f(2, LAST)]]);
     sprites.insert(SpriteId { category: 0x0C, index: 0x03 }, vec![vec![f(30, LAST | LOOP)]; 0x19]);

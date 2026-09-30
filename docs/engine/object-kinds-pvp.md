@@ -13,10 +13,11 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T1 0x15 | 0x080bb608 | 513 (EraseMan: the pack's `objects/erase-man`, chips.md §3.6.7) |
 | T1 0x1b | 0x080bc650 | 424 (Cross navi image: `kinds::cross_merge`, objects-and-player.md §12.10) |
 | T1 0x2d | 0x080c0e04 | 136 (navi warp: `kinds::navi_warp`, chips.md §3.6.7) |
-| T1 0x50 | 0x080c3ce8 | 454 |
+| T1 0x3d | 0x080c2a78 | lab only (DeltaRay: the pack's `objects/delta-ray`, chips.md §3.6.36) |
+| T1 0x50 | 0x080c3ce8 | 454 (BassAnly: the pack's `objects/bass-anly`, chips.md §3.6.35) |
 | T1 0x55 | 0x080c40d8 | 592 (SpoutMan's layer: `kinds::navi_layer`, the navi parts `kinds::navi_parts`) |
 | T1 0x56 | 0x080c4348 | 72155 (body overlay: `kinds::body_overlay`, objects-and-player.md §12.10) |
-| T1 0x57 | 0x080c4530 | 1148 |
+| T1 0x57 | 0x080c4530 | 1148 (form overlay: `kinds::form_overlay`; content spawns it with `battle.form_overlay`) |
 | T1 0x5d | 0x080c4828 | 300 |
 | T3 0x00 | 0x080c4e58 | 3189 |
 | T3 0x03 | 0x080c52b0 | 975 |
@@ -42,7 +43,7 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T3 0xb4 | 0x080dbcec | 512 |
 | T3 0xb8 | 0x080dc3f8 | lab only (ElmntMan's bolt: the pack's `objects/elmnt-bolt`, chips.md §3.6.7) |
 | T3 0xb9 | 0x080dc4fc | 96 (ElmntMan's vine: the pack's `objects/elmnt-vine`, chips.md §3.6.7) |
-| T3 0xc1 | 0x080dd34c | 296 |
+| T3 0xc1 | 0x080dd34c | 296 (BassAnly's shot: the pack's `objects/bass-anly-shot`, chips.md §3.6.35) |
 | T3 0xc2 | 0x080dd764 | 967 |
 | T3 0xc3 | 0x080dd940 | 732 (EraseMan's slash: the pack's `objects/erase-beam`, chips.md §3.6.7) |
 | T3 0xc8 | 0x080de13c | 2774 |
@@ -60,11 +61,12 @@ Handler = jumptable entry (T1 0x08003C9C, T3 0x08003EC4, T4 0x080042C8).
 | T4 0x1c | 0x080e23a4 | 334 |
 | T4 0x1f | 0x080e28a8 | 192 |
 | T4 0x20 | 0x080e2ae8 | 609 |
-| T4 0x28 | 0x080e32b8 | 500 |
+| T4 0x28 | 0x080e32b8 | 500 (afterimage: `kinds::afterimage`; content spawns one of its own sprite with `battle.afterimage`) |
 | T4 0x2a | 0x080e34c0 | 2276 (trap chip dimming controller: `kinds::trap_chip`, chips.md §3.6.9) |
 | T4 0x2d | 0x080e37f4 | 316 (SpoutMan's pillar: the pack's `objects/spout-pillar`, chips.md §3.6.11) |
 | T4 0x2e | 0x080e39a0 | 810 (SpoutMan's geyser marks: the pack's `objects/spout-mark`, chips.md §3.6.11) |
 | T4 0x2f | 0x080e3ab8 | 471 |
+| T4 0x31 | 0x080e3d68 | lab only (follow effect: the pack's `objects/follow-effect`, chips.md §3.6.36) |
 | T4 0x3b | 0x080e4910 | 494 |
 | T4 0x48 | 0x080e5c2c | 847 |
 | T4 0x5a | 0x080e70c8 | 184 |

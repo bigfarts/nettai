@@ -29,6 +29,9 @@ fn battles_run_the_content_scripts() {
         [
             "area-grab",
             "attachment",
+            "bass-anly",
+            "bass-anly-shot",
+            "delta-ray",
             "dust-ball",
             "elmnt-bolt",
             "elmnt-ice",
@@ -37,6 +40,7 @@ fn battles_run_the_content_scripts() {
             "erase-beam",
             "erase-man",
             "erase-mark",
+            "follow-effect",
             "grab-shot",
             "meteor",
             "spout-ball",
@@ -139,10 +143,23 @@ fn the_water_navi_attacks() {
 }
 
 #[test]
+fn the_cloaked_navi_attacks() {
+    use crate::object::Pool::{Actor, Attack, Effect};
+    let seen = duel_with(&[testing::ANOMALY], 2400, 11);
+    let ticks = |k| seen.get(&k).copied().unwrap_or(0);
+    // The cloaked navi comes in his cloak (a form overlay) and fires his
+    // homing shots, which leave afterimages.
+    assert!(ticks((Actor, 0x50)) > 0, "BassAnly: {seen:?}");
+    assert!(ticks((Actor, 0x57)) > 0, "BassAnly's cloak: {seen:?}");
+    assert!(ticks((Attack, 0xC1)) > 0, "BassAnly's shots: {seen:?}");
+    assert!(ticks((Effect, 0x28)) > 0, "the shots' afterimages: {seen:?}");
+}
+
+#[test]
 fn scripted_chips_roll_back() {
     // A copy of the battle taken at any tick plays on exactly as the
     // battle does: the scripts' state is all in the battle.
-    for chips in [&[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..], &[testing::ELEMENTS], &[testing::SPOUT]] {
+    for chips in [&[testing::ERASER, testing::GRAB, testing::SUN_GUN_3][..], &[testing::ELEMENTS], &[testing::SPOUT], &[testing::ANOMALY]] {
         let setup = || scenario::setup_with(chips);
         let tape = scenario::record_on(setup(), 2400, 11);
         let mut b = Battle::new(setup(), scenario::content());
