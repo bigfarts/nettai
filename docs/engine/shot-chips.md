@@ -6,7 +6,8 @@ AirShot, the Vulcans, the Spreaders, the BatCans, the TankCans, MachGun, CornSht
 and VDoll. standard-chips.md has the actions that fire no shot; objects-and-player.md §B8 and §B8a the buster's
 projectile (attack #0) and the flying shot (attack #0xB), which several of these fire.
 
-This is the original's behaviour, branch by branch, as the port must reproduce it. None of it is content yet.
+This is the original's behaviour, branch by branch, as the port must reproduce it. §18 says where the port keeps
+it (content model v2) and where it departs.
 
 Conventions (standard-chips.md's, and):
 
@@ -485,23 +486,8 @@ lifetime is about to run out, it erupts: 32 ticks later an aqua hit over the eig
   side = r1, class 1)` where r1 is the thrower's r0, **the Atk+ bonus**: 0 registers it as side 0's class-1 field
   object whichever side threw it (evicting side 0's current one: HP 0); 1 would be side 1's; in general it writes
   BattleState+0xA8 + 12·bonus, so Atk+10 writes BattleState+0x120 (past the registry, 0xA0..0xBF, and BattleState
-  itself, 0xF0 bytes) and zeroes the HP of whatever a nonzero word there points at.
-  - **What a bonus above 1 writes.** BattleState is at 0x02034880, so bonus n writes the word at 0x02034928 + 12·n.
-    For Atk+10 that is `dword_20349A0`, the first word of the custom screen's round memory: bit 5 + i is set when
-    Cross i is picked (`sub_802937A`), `sub_8029EC8` and `sub_8029EF8` offer only the Crosses whose bit is clear,
-    and `sub_8026840` zeroes it on the round's first screen (the port's `RoundMemory::crosses_used`). The throw
-    stores the boiler's RAM address there, on both consoles alike, so until the round ends the Crosses either
-    player is offered follow bits 5..9 of the object's address; the word it replaces is zeroed as an object's HP
-    at (word + the HP offset), harmless for a Cross mask (the BIOS area) but, when it still holds an earlier boiler's
-    address (with any Cross bits the screen ORed in since), a halfword write into the attack pool; and the boiler
-    is in neither side's registry (`sub_800F656` clears only 0xA0..0xB7, so the word is never cleared). Other
-    bonuses land elsewhere: 2 to 5 in BattleState's own +0xC0..0xEF (the end of the registry area and the actor
-    lists at +0xD0), 6 to 9 in the 48 bytes after it, 20 in `byte_2034A10`, 30 and 40 in the two sides'
-    `eBattleNaviStats` blocks, and so on.
-  - **The port** (chips/lilbolr/boiler.luau) registers the boiler for bonuses 0 and 1 exactly as above. A larger
-    bonus is an explicit error naming `setFieldBattleObject_800F614`: its effect is deterministic, but it depends on
-    the original's object addresses and writes a halfword at a computed address, which the battle's typed state
-    doesn't hold **[unverified]**: no lab scenario gives LilBoiler a bonus.
+  itself, 0xF0 bytes) and zeroes the HP of whatever a nonzero word there points at. The port must decide what to do
+  for a bonus above 1 (**[unverified]**: no lab scenario gives LilBoiler a bonus).
 - **Init** (`sub_80D761C`): VISIBLE; sprite 0x04/0x0D ("04-0D"), animation 0, a ground shadow, flipped as it is,
   palette 3 · Param1; NameID 0xEB; FuturePanel = the target. The flight (lib/trajectory.luau): the angle to the
   target's center (`calcAngle_800117C`, kept in its +0x0C byte), X and Y velocities at 0x2C000 along it
@@ -523,8 +509,8 @@ lifetime is about to run out, it erupts: 32 ticks later an aqua hit over the eig
   0xFFF) and ExtraVars+0xC = HP; `object_updateSprite`; present.
 - **`sub_801B878`** is `sub_801B394` ("breaks", field-objects.md §4.3) except that a crushing hit (0x0C800002: a
   body, a breaking hit) zeroes its HP only while ExtraVars+4 is 0. While it erupts a crushing hit does nothing more
-  than any hit. (The port's `react` takes it as `"breaks"`, or `"ignores"` while it erupts: kinds/obstacle.rs's
-  `Crush::Ignores`.)
+  than any hit. (kinds/obstacle.rs's note that it is "destroys" while erupting is wrong: nothing destroys it then
+  but a removal request or its HP reaching 0.)
 - **Fly** (actions 0 and 8, `sub_80D77D4`): Timer − 1, and at 0 it lands. Else Z velocity −= 0x2800, and the
   position + velocity; above Z 0 it flies on, else it lands. (Timer counts down twice a tick in flight, with the
   lifetime.) Landing: its panel and its collision panel = the target, at the target's center, Z 0. On a solid panel:
@@ -707,5 +693,48 @@ the curse controller and the sparkles; everything listed as "not" above.
   (variants 4..6), and TankCan is action 0x24. Corrected there. (Its Cannon frame numbers are one lower than the
   traces show, f16 for the shot and f33 for the exit against ticks 17 and 34: the entry tick doesn't count the
   timer.)
-- kinds/obstacle.rs described `sub_801B878` as "destroys" while erupting; it is "breaks", with a crushing touch
-  ignored while it erupts (§14.1). Corrected there (`Crush::Ignores`).
+- kinds/obstacle.rs described `sub_801B878` as "destroys" while erupting; see §14.1. It is now the obstacle
+  service's `"ignores"` crush.
+
+## 18. As ported
+
+Content model v2 (docs/design/content-model-v2.md): each action is a builder its chips compose, each object a kind
+definition, each table row a variant record written out in Luau.
+
+- **Where.** The projectile and its variants: objects/projectile (`variants.by_number` for the NaviCust's numbered
+  shots), lib/projectile; the flying shot: objects/flying-shot; the bullet: objects/bullet (its rows, and the
+  variants the Vulcans, the Spreaders, SpoutCross's charged shot, ColArmy and ColForce fire). The cannons:
+  lib/cannon with chips/cannon and chips/gigacan; AirShot, BatCan, MachGun: chips/airshot, chips/batcan (with its
+  shot), chips/machgun; the Vulcans, the Spreaders, the TankCans, CornSht, WideSht and SuprSpr: chips/vulcan,
+  chips/spreadr, chips/tankcan (with its shell), chips/cornsht (with the corn), chips/widesht (with the wave); the
+  sonic boom: lib/swords/sonic_boom with chips/sonicbom and chips/z-saver; LilBoiler: chips/lilbolr (the boiler and
+  the layer); VDoll: chips/vdoll (the doll, the curse and the sparkles); the rapid buster: lib/rapid_buster.
+- **Records.** The chips other records or the ruleset name by number keep the pack's records, and their modules
+  give the actions with their compat keys: the cannons and GigaCans, the Vulcans, the Spreaders, CornSht, WideSht
+  and SuprSpr (Program Advances), VDoll (Darkness's recipes), the sonic boom's four (the variable swords' picks,
+  VDoll's telop) and Z Saver (weapon 0x6E). Registration by number reaches them through one module per action
+  (chips/001-cannon, 005-vulcan1, 009-spreadr1, 00c-tankcan1, 017-widesht, 040-cornsht1, 173-sonicbom,
+  17d-zsaver; the bombs' 036-minibomb for LilBoiler and VDoll), which picks the chip's action by the subtype or
+  the record's parameters. AirShot, the BatCans, the TankCans, MachGun and LilBoiler are definitions.
+- **LilBoiler's registry side** (§14.1). The bonus picks the field-object slot `setFieldBattleObject_800F614`
+  writes, BattleState+0xA8 + 12 · bonus: 0 is side 0's class-1 slot whoever threw it, 1 side 1's. Atk+10's lands
+  on BattleState+0x120, the word right after BattleState (`dword_20349A0`): the battle's used-crosses mask, a bit
+  per Cross the cross window greys out, zeroed when a battle starts. The boiler's address overwrites it (and the
+  halfword at the old mask's value + the HP offset is zeroed, an unmapped address for any mask a battle builds),
+  so the crosses still selectable afterwards depend on where the boiler's slot lies in memory. Larger bonuses
+  write further on. The port registers bonuses 0 and 1 as the original does and stops with an error naming the
+  routine for any larger one **[unverified]**: no lab scenario gives LilBoiler a bonus.
+- **The obstacle service** gained the crush `"ignores"` (`sub_801B878` while erupting) and the status flag
+  `"carried"` (0x04000000, which the doll tests); objects gained `clear_statuses` (the eruption's status word
+  cleared) and `load_or_step_sprite` (`sub_801BC24`, the doll's sprite); `battle.objects_of(kind)` walks the
+  update list (`sub_80C67A4`); the collision's `element` and `secondary_element` (`sub_8019F8C`) are fields.
+- **Departures.** SuprSpr keeps each wave's hit modifier in the attack's second parameter (`av[0xD]`) before the
+  wave reads it among its parameters; the port hands it to the wave. CornSht's corn takes its generation from the
+  chip's first parameter, 0 for all three, which the port writes as 0. The curse's marks sound every 16 frames of
+  the game's frame counter, which the port doesn't keep: every 16 ticks of the marking, as gauge-speed's port does.
+  The layer copies its owner's palette, colour shader, priority and blending, but the final palette and the HUD
+  calls (the HP display, the HUD element) are drawn only and not kept.
+- **Verified** on the traces (machgun at its floors; soundmod's second round now runs to its end, its first stops
+  at JudgeMan) and on the families' lab scenarios: every one matches but BatCan4's `counter`, where the original
+  keeps Full Synchro's aura through the counter's paralysis and the engine drops it at the hit (the emotion's, not
+  the chip's), and those other blockers stop (dimming subtypes 21 and 29, DiveMan).
