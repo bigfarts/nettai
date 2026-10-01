@@ -17,6 +17,15 @@ local BY_ELEMENT: { [number]: Spark } = {
 -- The erase beams' spark (hit effect 0x0C).
 sparks.erase = define.spark { sprite = asset.sprite("reflected-shot"), anim = 0, palette = 2 }
 
+-- The plain hit (hit effect 0: VDoll's doll).
+sparks.plain = BY_ELEMENT[0]
+
+-- A breaking hit (hit effect 0x0A: LilBoiler's boiler).
+sparks.breaking = define.spark { sprite = asset.sprite("copy-mark"), anim = 1, palette = 0 }
+
+-- A piercing hit (hit effect 6: the VDoll curse's hits).
+sparks.pierce = define.spark { sprite = asset.sprite("copy-mark"), anim = 8, palette = 0 }
+
 -- `sub_801A146`: the spark of an attack of `element` (its primary
 -- element, the low nibble).
 function sparks.of_element(element: number): Spark

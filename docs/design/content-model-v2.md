@@ -760,10 +760,10 @@ lib/sparks.luau, lib/regions.luau). What it settled:
   the ruleset still name by number keeps the pack's record, and its module gives only the action, with its
   compat key as `id` (`throw.action { id = "poisseed/action", ... }`): PoisSeed, whose number PoisPhar's recipe
   names. Registration by number reaches such records through a shim, chips/036-minibomb/chip.luau, which runs
-  the chip's own action by subtype (and FlshBom's level). Records still reach it: PoisSeed; LilBoiler and
-  VDoll (not ported: they wind up and fail where they throw, as before); the Cross special's MiniBomb, EnergBom
-  and MegEnBom, which the ruleset's table picks by number and so gets the pack's records; and the test
-  content's numbered bombs. The shim goes when those are definitions or roles (step 5, phase C).
+  the chip's own action by subtype (and FlshBom's and LilBoiler's level). Records still reach it: PoisSeed;
+  VDoll (Darkness's recipes name it); LilBolr1-3's records; the Cross special's MiniBomb, EnergBom and
+  MegEnBom, which the ruleset's table picks by number and so gets the pack's records; and the test content's
+  numbered bombs. The shim goes when those are definitions or roles (step 5, phase C).
 - **What stays numeric**, having no v2 form yet: statuses (the flash's blinding, the bug bomb's 0x20), bug codes,
   NameIDs (the BlkBomb's 0xD5, the attachment's Cross check) and the absorbed-obstacle kind; the hitbox's
   `hit_effect = 0xFF` ("none"). The ratchet counts what it can see of them.
@@ -774,8 +774,19 @@ lib/sparks.luau, lib/regions.luau). What it settled:
 EnergBom and MegEnBom (a series, one folder) pass `after = energy_burst.leave` from their own
 `chips/energbom/burst.luau`; the bomb kind no longer requires the energy burst. FlshBom1-3 pass their own
 `held_palette` (0, 3, 6: the original's level times three, materialized) and `flash_bomb.thrower` from
-`chips/flshbom/`; the seeds pass `seed.thrower(...)` from `lib/bombs/seed.luau`. LilBoiler and VDoll, `wip()`
-stubs today, become chips whose throwers are written when they are ported; no table has an empty row for them.
+`chips/flshbom/`; the seeds pass `seed.thrower(...)` from `lib/bombs/seed.luau`.
+
+**As built** (group G4, LilBoiler and VDoll): `throw.action` with their own throwers. chips/lilbolr (LilBolr1-3,
+definitions: `boiler.thrower(level)`; the boiler `lilbolr/boiler`, attack #0x93, and its steam layer
+`lilbolr/layer`, actor #0x54) and chips/vdoll (VDoll, kept on its record: `doll.thrower()`; the doll `vdoll/doll`,
+attack #0x7A, the curse's dimming controller `vdoll/curse`, effect #0x4E, on `lib/dimming`, and the sparkles
+`vdoll/sparkles`, effect #0x11). The boiler's registration side is the thrower's Atk+ bonus, as the original's
+leftover register has it: bonuses 0 and 1 are side 0's and side 1's slots, and a larger one, which writes past the
+registry in the original (docs/engine/shot-chips.md §14.1), is an explicit error. The obstacle framework gained
+`react(me, "ignores")` (LilBoiler's `sub_801B878` while it erupts); the API gained the collision's `element` and
+`secondary_element`, `me:clear_statuses()`, `me:load_or_step_sprite()`, the `carried` status and
+`battle.objects_of(kind)`. Verified against the lab's LilBoiler and VDoll scenarios and scratch scenarios that reach
+the eruption (by lifetime and by three hits), the layer, the curse and the sparkles.
 
 ### 5.2 Swords: one slash action, per-chip blades and hits
 
@@ -1843,10 +1854,18 @@ reaches the traces and the game's setups through `bn6-compat`, which maps the en
 - **Registration-by-number shims.** chips/036-minibomb (action 0x12), chips/047-sword (0x13) and
   chips/056-mchnswrd (0x49) run a record's action by its subtype for records something still names by number:
   the Cross special's chips (berserk.rs `CROSS_SPECIAL_CHIPS`: MiniBomb, EnergBom, MegEnBom and swords), the
-  Program Advance recipes' ingredients (PoisSeed, the swords), records not ported (LilBoiler, VDoll), the test
-  content's numbered chips. The 0x12 and 0x13 shims go when the Cross special's list and the recipes go by
-  handle (phase C, step 10); the 0x49 one when the stun strike (idle.rs `set_attack(0x49)`) is
-  `roles.actions.stun_strike`.
+  Program Advance recipes' ingredients (PoisSeed, VDoll, the swords), LilBolr1-3's records (their definitions are
+  the chips; nothing names the records), the test content's numbered chips. The 0x12 and 0x13 shims go when the
+  Cross special's list and the recipes go by handle (phase C, step 10); the 0x49 one when the stun strike
+  (idle.rs `set_attack(0x49)`) is `roles.actions.stun_strike`.
+- **The shot chips' shims** (group G4, counted by the ratchet where they read the record): chips/040-cornsht1
+  (action 0x2A: CornSht1-3, which CornFsta's recipes name), chips/017-widesht (0x30, by subtype: WideSht,
+  SuprSpr's recipe ingredient, and SuprSpr, a Program Advance), chips/173-sonicbom (0x55, by the boom's first
+  attack parameter: SonicBom and SprSonic, which VarSwrd's and NeoVari's picks start by number from their records,
+  and the records of Curse and Punisher), chips/17d-zsaver (0x5B: ZSaver, which weapon 0x6E would start from its
+  record). The chips' modules (chips/cornsht, widesht, sonicbom, z-saver) give their actions with the compat keys as
+  `id`. They go with the 0x12 shim (step 10), and SonicBom's when the variable swords' picks are chips
+  (`VariSwordSpec.choices`).
 - **Chips kept on records** (their modules give only the action, with the compat key as `id`): besides the
   above, what 3b's `chip_record` refuses in a definition: `program_advances` (LifeSrd), `dark_substitute`
   (DrkSword) and damage formulas (Muramasa, ProtoMan's StepSwrd). The reader learns them (step 5 needs them

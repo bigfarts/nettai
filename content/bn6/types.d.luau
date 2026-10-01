@@ -222,3 +222,22 @@ export type Instrument = {
     tune: Sound,
     effect: (me: Object) -> (),
 }
+
+-- A wide wave (chips/widesht/wave.luau, the original's attack #0x3B by
+-- kind): its speed (16.16 pixels a tick); whether it goes through what it
+-- hits (with the hit modifier it's fired with), holds its spawner's attack
+-- and waits before sliding, or trails afterimages; what it is (a collision
+-- type), the bug it gives (code | argument << 8) and its palette.
+export type WaveVariant = {
+    speed: number,
+    pierces: boolean,
+    holds: boolean,
+    trails: boolean,
+    collision: CollisionType,
+    bug: number?,
+    palette: number?,
+}
+
+-- A sonic boom (lib/swords/sonic_boom.luau): its hit modifier, whether it
+-- goes through what it hits.
+export type SonicBoom = { hit_mod: number, pierces: boolean }

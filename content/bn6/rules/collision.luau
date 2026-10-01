@@ -100,4 +100,18 @@ collision.guard_breaking = define.collision {
     row_offset = 0x190,
 }
 
+-- A probe (row 0x3D): it finds the first thing its target type reaches
+-- without hurting it (CornSht's corn, the bullet).
+collision.probe = define.collision { id = "probe", side0 = 0x00000080, side1 = 0x00000080, row_offset = 0x1E8 }
+
+-- A thrown attack that pierces invisibility and flashing (row 0x19: the
+-- VDoll curse's hits).
+collision.curse = define.collision { id = "curse", side0 = 0x8000008c, side1 = 0x4000008c, row_offset = 0xC8 }
+
+-- A neutral body, while dimmed too (row 0x0E: a VDoll that landed).
+collision.neutral_body = define.collision { id = "neutral-body", side0 = 0x00810082, side1 = 0x00810082, row_offset = 0x70 }
+
+-- An attack of row 0x25 (the wide wave's kind 9, which nothing fires).
+collision.attack_480 = define.collision { id = "attack-480", side0 = 0x80000480, side1 = 0x40000480, row_offset = 0x128 }
+
 return collision

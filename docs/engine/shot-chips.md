@@ -485,8 +485,23 @@ lifetime is about to run out, it erupts: 32 ticks later an aqua hit over the eig
   side = r1, class 1)` where r1 is the thrower's r0, **the Atk+ bonus**: 0 registers it as side 0's class-1 field
   object whichever side threw it (evicting side 0's current one: HP 0); 1 would be side 1's; in general it writes
   BattleState+0xA8 + 12·bonus, so Atk+10 writes BattleState+0x120 (past the registry, 0xA0..0xBF, and BattleState
-  itself, 0xF0 bytes) and zeroes the HP of whatever a nonzero word there points at. The port must decide what to do
-  for a bonus above 1 (**[unverified]**: no lab scenario gives LilBoiler a bonus).
+  itself, 0xF0 bytes) and zeroes the HP of whatever a nonzero word there points at.
+  - **What a bonus above 1 writes.** BattleState is at 0x02034880, so bonus n writes the word at 0x02034928 + 12·n.
+    For Atk+10 that is `dword_20349A0`, the first word of the custom screen's round memory: bit 5 + i is set when
+    Cross i is picked (`sub_802937A`), `sub_8029EC8` and `sub_8029EF8` offer only the Crosses whose bit is clear,
+    and `sub_8026840` zeroes it on the round's first screen (the port's `RoundMemory::crosses_used`). The throw
+    stores the boiler's RAM address there, on both consoles alike, so until the round ends the Crosses either
+    player is offered follow bits 5..9 of the object's address; the word it replaces is zeroed as an object's HP
+    at (word + the HP offset), harmless for a Cross mask (the BIOS area) but, when it still holds an earlier boiler's
+    address (with any Cross bits the screen ORed in since), a halfword write into the attack pool; and the boiler
+    is in neither side's registry (`sub_800F656` clears only 0xA0..0xB7, so the word is never cleared). Other
+    bonuses land elsewhere: 2 to 5 in BattleState's own +0xC0..0xEF (the end of the registry area and the actor
+    lists at +0xD0), 6 to 9 in the 48 bytes after it, 20 in `byte_2034A10`, 30 and 40 in the two sides'
+    `eBattleNaviStats` blocks, and so on.
+  - **The port** (chips/lilbolr/boiler.luau) registers the boiler for bonuses 0 and 1 exactly as above. A larger
+    bonus is an explicit error naming `setFieldBattleObject_800F614`: its effect is deterministic, but it depends on
+    the original's object addresses and writes a halfword at a computed address, which the battle's typed state
+    doesn't hold **[unverified]**: no lab scenario gives LilBoiler a bonus.
 - **Init** (`sub_80D761C`): VISIBLE; sprite 0x04/0x0D ("04-0D"), animation 0, a ground shadow, flipped as it is,
   palette 3 · Param1; NameID 0xEB; FuturePanel = the target. The flight (lib/trajectory.luau): the angle to the
   target's center (`calcAngle_800117C`, kept in its +0x0C byte), X and Y velocities at 0x2C000 along it
@@ -508,8 +523,8 @@ lifetime is about to run out, it erupts: 32 ticks later an aqua hit over the eig
   0xFFF) and ExtraVars+0xC = HP; `object_updateSprite`; present.
 - **`sub_801B878`** is `sub_801B394` ("breaks", field-objects.md §4.3) except that a crushing hit (0x0C800002: a
   body, a breaking hit) zeroes its HP only while ExtraVars+4 is 0. While it erupts a crushing hit does nothing more
-  than any hit. (kinds/obstacle.rs's note that it is "destroys" while erupting is wrong: nothing destroys it then
-  but a removal request or its HP reaching 0.)
+  than any hit. (The port's `react` takes it as `"breaks"`, or `"ignores"` while it erupts: kinds/obstacle.rs's
+  `Crush::Ignores`.)
 - **Fly** (actions 0 and 8, `sub_80D77D4`): Timer − 1, and at 0 it lands. Else Z velocity −= 0x2800, and the
   position + velocity; above Z 0 it flies on, else it lands. (Timer counts down twice a tick in flight, with the
   lifetime.) Landing: its panel and its collision panel = the target, at the target's center, Z 0. On a solid panel:
@@ -692,5 +707,5 @@ the curse controller and the sparkles; everything listed as "not" above.
   (variants 4..6), and TankCan is action 0x24. Corrected there. (Its Cannon frame numbers are one lower than the
   traces show, f16 for the shot and f33 for the exit against ticks 17 and 34: the entry tick doesn't count the
   timer.)
-- kinds/obstacle.rs describes `sub_801B878` as "destroys" while erupting; see §14.1 (left for whoever ports
-  LilBoiler).
+- kinds/obstacle.rs described `sub_801B878` as "destroys" while erupting; it is "breaks", with a crushing touch
+  ignored while it erupts (§14.1). Corrected there (`Crush::Ignores`).
