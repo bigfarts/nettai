@@ -1,6 +1,6 @@
 --!strict
--- The NaviCust supports' dimming controller (the original's effect object #0x79, `sub_80E8FE0`): the shared controller
--- (@exelib/supports/controller, BN5's too) with BN6's supports, Rush (./rush), Beat (./beat) and Tango (./tango). The
+-- The NaviCust supports' dimming controller (BN5's effect object #0x74, 0x080E8F50; BN6's #0x79): the shared controller
+-- (@exelib/supports/controller, BN6's code) with BN5's supports, Rush (./rush), Beat (./beat) and Tango (./tango). The
 -- ruleset spawns it by the role `kinds.support` (rules/roles.luau). See docs/engine/chips.md §2.10.
 
 local beat = require("./beat")
@@ -10,7 +10,7 @@ local tango = require("./tango")
 
 return {
     kind = common.make {
-        id = "bn6:support/controller",
+        id = "bn5:support/controller",
         rush = rush,
         beat = beat,
         tango = tango,
