@@ -1,6 +1,7 @@
 --!strict
--- SearchMan's shot, EXE5's (attack object #0x57, 0x080D0D78): @exelib/serchman/shot with EXE5's: 16 pixels up, its
--- miss's spark effect 7 (hit-sparks, animation 0), the rows 25 and 29 (curse and row 0x1D) its Param1 names.
+-- SearchMan's shot, EXE4's (attack object #0x57, 0x080D87B0): @exelib/serchman/shot with EXE4's: on the ground
+-- (0x080D87DE), its miss's spark effect row 8 (hit-sparks, animation 0), the rows 25 and 29 (curse and row 0x1D) its
+-- Param1 names, sparks 0 and 9.
 
 local collision = require("../../rules/collision")
 local common = require("@exelib/serchman/shot")
@@ -8,7 +9,7 @@ local sparks = require("../../lib/sparks")
 
 return common.make {
     id = "serchman/shot",
-    z = 0x10_0000,
+    z = 0,
     miss = new.effect { sprite = asset.sprite("hit-sparks"), anim = 0, palette = 0 },
     plain_type = collision.curse,
     powered_type = collision.collision_1d,
